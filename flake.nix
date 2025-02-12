@@ -25,6 +25,7 @@
             emscripten
             python3
             cmake
+            wabt
           ];
           EM_CACHE = "/home/ole/.emscripten_cache";
         };

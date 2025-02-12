@@ -9,3 +9,17 @@ cmake-build-release
 install
 .direnv/bin
 .direnv
+.cache/clangd/index
+.ccls-cache/@@home@ole@projects@SZ3-wasm
+.ccls-cache/@home@ole@projects@SZ3-wasm
+CMakeFiles
+compile_commands.json
+CMakeCache.txt
+CTestTestfile.cmake
+DartConfiguration.tcl
+Makefile
+SZ3Config.cmake
+SZ3.cmake
+SZ3ConfigVersion.cmake
+cmake_install.cmake
+include/SZ3/version.hpp

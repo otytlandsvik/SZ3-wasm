@@ -1,4 +1,4 @@
-add_library(
+add_executable(
         SZ3c
         src/sz3c.cpp
 )
