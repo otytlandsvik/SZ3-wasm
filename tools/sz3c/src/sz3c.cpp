@@ -106,19 +106,43 @@ EMSCRIPTEN_KEEPALIVE
 void *exported_malloc(size_t size) { return malloc(size); }
 }
 
+// extern "C" {
+// EMSCRIPTEN_KEEPALIVE
+// void comp_test(double *data) {
+//     SZ3::Config conf = SZ3::Config(48);
+//     conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
+//     conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
+//     conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
+//
+//     size_t outSize;
+//     char *compressed = (SZ_compress<double>(conf, data, outSize));
+//     // std::vector<double> out(conf.num);
+//     // auto out_data = out.data();
+//     SZ_decompress<double>(conf, compressed, outSize, data);
+// }
+// }
+
 extern "C" {
 EMSCRIPTEN_KEEPALIVE
-void comp_test(double *data) {
+void sz_compress_f64(double *data, char *compressed, size_t *comp_size) {
     SZ3::Config conf = SZ3::Config(150);
     conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
     conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
     conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
 
-    size_t outSize;
-    char *compressed = (SZ_compress<double>(conf, data, outSize));
-    // std::vector<double> out(conf.num);
-    // auto out_data = out.data();
-    SZ_decompress<double>(conf, compressed, outSize, data);
+    compressed = SZ_compress<double>(conf, data, *comp_size);
+}
+}
+
+extern "C" {
+EMSCRIPTEN_KEEPALIVE
+void sz_decompress_f64(char *compressed, size_t comp_size, double *dec_data) {
+    SZ3::Config conf = SZ3::Config(150);
+    conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
+    conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
+    conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
+
+    SZ_decompress<double>(conf, compressed, comp_size, dec_data);
 }
 }
 
