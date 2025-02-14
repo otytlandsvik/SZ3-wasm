@@ -145,7 +145,7 @@ extern "C" {
 EMSCRIPTEN_KEEPALIVE
 void sz_decompress_f64(char *compressed, size_t comp_size, double *dec_data, size_t dec_dims) {
     SZ3::Config conf = SZ3::Config(dec_dims);
-    conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
+    // conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
     conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
     conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
 
