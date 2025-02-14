@@ -6,6 +6,7 @@
 
 #include <emscripten.h>
 
+#include <cstdio>
 #include <iostream>
 
 #include "SZ3/api/sz.hpp"
@@ -124,20 +125,26 @@ void *exported_malloc(size_t size) { return malloc(size); }
 
 extern "C" {
 EMSCRIPTEN_KEEPALIVE
-void sz_compress_f64(double *data, char *compressed, size_t *comp_size) {
-    SZ3::Config conf = SZ3::Config(150);
+int *sz_compress_f64(double *data, size_t data_dims, size_t *comp_size) {
+    // printf("Got these floats:\n");
+    // for (int i = 0; i < 5; i++) {
+    //     printf("%lf\n", data[i]);
+    // }
+    SZ3::Config conf = SZ3::Config(data_dims);
     conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
     conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
     conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
 
-    compressed = SZ_compress<double>(conf, data, *comp_size);
+    char *compressed = SZ_compress<double>(conf, data, *comp_size);
+    printf("Comp size: %d\n", *comp_size);
+    return (int *)compressed;
 }
 }
 
 extern "C" {
 EMSCRIPTEN_KEEPALIVE
-void sz_decompress_f64(char *compressed, size_t comp_size, double *dec_data) {
-    SZ3::Config conf = SZ3::Config(150);
+void sz_decompress_f64(char *compressed, size_t comp_size, double *dec_data, size_t dec_dims) {
+    SZ3::Config conf = SZ3::Config(dec_dims);
     conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
     conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
     conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
@@ -148,16 +155,27 @@ void sz_decompress_f64(char *compressed, size_t comp_size, double *dec_data) {
 
 int main() {
     size_t outSize;
-    double data[5] = {0.5678, 1.14567, 1.11111, 7.96969, 6.96969};
+    // double data[5] = {0.5678, 1.14567, 1.11111, 7.96969, 6.96969};
+    double data[50] = {0.5678,  1.14567, 1.11111, 7.96969, 6.96969, 2.34567, 8.76543, 9.12345, 3.14159, 4.56789,
+                       5.67891, 6.78912, 7.89123, 8.91234, 9.02345, 0.13456, 1.24567, 2.35678, 3.46789, 4.57891,
+                       5.68912, 6.79123, 7.81234, 8.92345, 9.03456, 0.14567, 1.25678, 2.36789, 3.47891, 4.58912,
+                       5.69123, 6.79234, 7.80345, 8.91456, 9.02567, 0.13678, 1.24789, 2.35891, 3.46912, 4.57123,
+                       5.68234, 6.79345, 7.80456, 8.91567, 9.02678, 0.13789, 1.24891, 2.35912, 3.46023, 4.57134};
 
     // NOTE: What does the number sent into the constructor actually mean?
-    SZ3::Config conf = SZ3::Config(48);
+    // size_t dim = (50 * sizeof(double)) - 1;
+    size_t dim = 50;
+    SZ3::Config conf = SZ3::Config(400);
     conf.cmprAlgo = SZ3::ALGO_INTERP_LORENZO;
     conf.errorBoundMode = SZ3::EB_ABS;  // refer to def.hpp for all supported error bound mode
     conf.absErrorBound = 1E-3;          // absolute error bound 1e-3
 
     // unsigned char *compressed = NULL;
     char *compressed = (SZ_compress<double>(conf, data, outSize));
+    printf("Compressed first 10 digits:\n");
+    for (int i = 0; i < 10; i++) {
+        printf("%d\n", compressed[i]);
+    }
     std::vector<double> out(conf.num);
     auto out_data = out.data();
     SZ_decompress<double>(conf, compressed, outSize, out_data);
